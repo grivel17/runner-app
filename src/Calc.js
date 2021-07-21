@@ -1,80 +1,119 @@
 import React, { Component } from 'react';
 
 
-//fajnie to zaczyna wyglądać dodaj kolejną funkcję, która pozwoli przeliczać na minuty 
-//kolejny etap podanie wszystkich parametrów 
-//dopiero na etapie debugingu przejrzyj kod z poprzedniej appki 
-
-function ActualCount (props){
-
-    return <p>Moja aktulana liczba klików to: {props.klik}</p>
+//
+function DistanceInput (props){
+    return <p>Dystans, który chcesz przebiec to: {props.distance} km</p>
 }
 
-function ActualInput (props){
-
-    return <p>Musisz biec z predkoscia: {props.predkosc} km</p>
+function ExpectedTimeInput (props){
+    return <p>Twój oczekiwany czas na mecie to: {props.finishTimeHours} h {props.finishTimeMinutes} min</p>
 }
 
+function YourSpeed(props){
+    return <p>Aby osiągnąć oczekiwany rezultat musisz biec: {props.speedMinutes} min : {props.speedSecondes} sec / km, czyli {props.speed} km/h </p>
+
+}
+
+//
+const divDivider = {
+    backgroundColor: "green",
+    width: "100%",
+    height: "50px"
+}
+
+//
 
 class Calc extends Component {
     
     constructor(props){
         super(props);
+        this.re = /^[0-9\b]+$/;
         this.state = {
-            wynik: 0,
-            predkosc: 0
+           distance: parseInt(0),
+           expectedTimeHours: parseInt(0),
+           expectedTimeMinutes: parseInt(0),
+           speedMinutes: parseInt(0),
+           speedSecondes: parseInt(0),
+           speed: parseInt(0)
         }
-        this.clickChange = this.clickChange.bind(this);
-        this.clickReset = this.clickReset.bind(this);
-        this.takeInput = this.takeInput.bind(this);
+
+    
+        this.takeDistance = this.takeDistance.bind(this);
+        this.takeExpectedTimeHours = this.takeExpectedTimeHours.bind(this);
+        this.takeExpectedTimeMinutes = this.takeExpectedTimeMinutes.bind(this);
+        this.returnSpeed = this.returnSpeed.bind(this);
     }
 
-    clickChange(){
-        let inkrement = this.state.wynik;
-        inkrement ++;
-        this.setState({wynik: inkrement }); 
+    //here you probably can refactor and put together all inputs
+
+    takeDistance(event){
+        if (event.target.value === '' || this.re.test(event.target.value)) {
+        this.setState({distance: event.target.value})
+        } else {
+            alert("Musisz podać liczbę!")
+        }     
+    }
+    
+    takeExpectedTimeHours(event){
+        if (event.target.value === '' || this.re.test(event.target.value)) {
+            this.setState({expectedTimeHours: event.target.value})
+            } else {
+                alert("Musisz podać liczbę!")
+            } 
     }
 
-    clickReset(){
-        this.setState({wynik: 0})
+    takeExpectedTimeMinutes(event){
+        if (event.target.value === '' || this.re.test(event.target.value)) {
+            this.setState({expectedTimeMinutes: event.target.value})
+            } else {
+                alert("Musisz podać liczbę!")
+            } 
     }
+   
+    //
 
-    takeInput(event){
-        console.log(event.target.value)
-        let predkosc = 10 / event.target.value * 60
+    returnSpeed(){
+        
+        let wholeTime = this.state.expectedTimeHours * 60 + this.state.expectedTimeMinutes;
+        let speedMinutes = Math.floor(wholeTime / this.state.distance); 
+        let speedSecondes = Math.floor(((wholeTime / this.state.distance) - speedMinutes)*60); 
+        let speed = 60 / (wholeTime / this.state.distance);
+        
+        this.setState({speedMinutes: speedMinutes,
+                       speedSecondes: speedSecondes,
+                       speed: speed.toFixed(1)               
+        });
 
-        this.setState({predkosc: predkosc})
+
+
+        
+        
     }
     
     render() {
     return (
       <div>
-        JAK SZYBKO MUSZĘ BIEC?
-        <br></br>
-        <button onClick={this.clickChange}>
-            MOJ KLAWISZ
-        </button>
-        <br></br>
        
-       <ActualCount klik={this.state.wynik} />
+       <p>Podaj dystans</p>
+       <input type="text" name="distanceInput" placeholder="0 km" onChange={this.takeDistance}></input>
+       <DistanceInput distance = {this.state.distance}/>
+       
+       <div style={divDivider}></div>
 
-        <br></br>
-
-        <button onClick={this.clickReset}>
-            ZRESETUJ MNIE 
-        </button>
+       <input type="text" name="expectedTime" placeholder="0 h" onChange={this.takeExpectedTimeHours}></input>
+       <input type="text" name="expectedTime" placeholder="00 min" onChange={this.takeExpectedTimeMinutes}></input>
+       
+       <ExpectedTimeInput finishTimeHours = {this.state.expectedTimeHours} finishTimeMinutes={this.state.expectedTimeMinutes} />
         
-        <br></br>
-        <br></br>
+       <div style={divDivider}></div>
 
+        <button onClick={this.returnSpeed} >btn</button> 
+        
 
-        <input type="text" name="test" onChange={this.takeInput}></input>
+       <YourSpeed speedMinutes={this.state.speedMinutes} speedSecondes={this.state.speedSecondes} speed={this.state.speed}/> 
 
-        <br></br>
-        <br></br>
-        PODAJ czas NA 10 KM w MINUTACH 
-        <ActualInput predkosc={this.state.predkosc} /> 
-
+       <div style={divDivider}></div>
 
       </div>
     );
